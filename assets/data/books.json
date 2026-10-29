@@ -1,6 +1,7 @@
 [
   {
     "id": "B001",
+    "stock": 2,
     "title": "Harry Potter",
     "author": "J.K. Rowling",
     "replacementPrice": 250000.0,
@@ -8,6 +9,7 @@
   },
   {
     "id": "B002",
+    "stock": 2,
     "title": "Islam ala Prabowo",
     "author": "Abdur Rahim Hasan, Rikal Dikri, Mush'ab Muqoddas",
     "replacementPrice": 200000.0,
