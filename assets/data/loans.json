@@ -1,0 +1,11 @@
+[
+  {
+    "id": "L001",
+    "bookId": "B002",
+    "studentId": "2086022510011",
+    "borrowingDate": "2026-10-29",
+    "dueDate": "2026-11-02",
+    "returnDate": null,
+    "fineAmount": 0.0
+  }
+]

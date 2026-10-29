@@ -1,0 +1,16 @@
+[
+  {
+    "id": "B001",
+    "title": "Harry Potter",
+    "author": "J.K. Rowling",
+    "replacementPrice": 250000.0,
+    "isAvailable": true
+  },
+  {
+    "id": "B002",
+    "title": "Islam ala Prabowo",
+    "author": "Abdur Rahim Hasan, Rikal Dikri, Mush'ab Muqoddas",
+    "replacementPrice": 200000.0,
+    "isAvailable": false
+  }
+]
