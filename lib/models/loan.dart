@@ -17,6 +17,26 @@ class Loan {
     required this.fineAmount,
   });
 
+  Loan copyWith({
+    String? id,
+    String? bookId,
+    String? studentId,
+    DateTime? borrowingDate,
+    DateTime? dueDate,
+    DateTime? returnDate,
+    double? fineAmount,
+  }) {
+    return Loan(
+      id: id ?? this.id,
+      bookId: bookId ?? this.bookId,
+      studentId: studentId ?? this.studentId,
+      borrowingDate: borrowingDate ?? this.borrowingDate,
+      dueDate: dueDate ?? this.dueDate,
+      returnDate: returnDate ?? this.returnDate,
+      fineAmount: fineAmount ?? this.fineAmount,
+    );
+  }
+
   factory Loan.fromJson(Map<String, dynamic> json) {
     return Loan(
       id: json['id'] as String,

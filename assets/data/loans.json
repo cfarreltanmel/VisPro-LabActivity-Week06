@@ -1,10 +1,37 @@
 [
   {
     "id": "L001",
-    "bookId": "B002",
+    "bookId": "B001",
     "studentId": "2086022510011",
     "borrowingDate": "2026-10-29",
     "dueDate": "2026-11-02",
+    "returnDate": null,
+    "fineAmount": 0.0
+  },
+  {
+    "id": "L002",
+    "bookId": "B002",
+    "studentId": "2086022510012",
+    "borrowingDate": "2026-10-15",
+    "dueDate": "2026-10-22",
+    "returnDate": null,
+    "fineAmount": 0.0
+  },
+  {
+    "id": "L003",
+    "bookId": "B002",
+    "studentId": "2086022510013",
+    "borrowingDate": "2026-10-08",
+    "dueDate": "2026-10-15",
+    "returnDate": null,
+    "fineAmount": 0.0
+  },
+  {
+    "id": "L004",
+    "bookId": "B001",
+    "studentId": "2086022510014",
+    "borrowingDate": "2026-04-01",
+    "dueDate": "2026-04-08",
     "returnDate": null,
     "fineAmount": 0.0
   }

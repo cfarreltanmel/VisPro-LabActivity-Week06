@@ -82,93 +82,90 @@ class LibraryViewModel extends ChangeNotifier {
       customCurrentDate: checkDate,
     );
 
-    if (status == LoanStatus.missing) {
-      final Book? book = _findBookById(loan.bookId);
-      return book?.replacementPrice ?? 0.0;
-    }
-
     if (status == LoanStatus.onTime) {
       return 0.0;
     }
 
     final int overdueDays = checkDate.difference(loan.dueDate).inDays;
 
-    if (overdueDays <= 6) {
-      return 0.0;
+    double accumulatedFine = 0.0;
+
+    if (overdueDays > 6) {
+      int remainingFineableDays = overdueDays - 6;
+      int currentWeek = 1;
+
+      while (remainingFineableDays > 0) {
+        final int daysInThisWeek = remainingFineableDays > 7
+            ? 7
+            : remainingFineableDays;
+        final double weekDailyRate = currentWeek * 5000.0;
+
+        accumulatedFine += daysInThisWeek * weekDailyRate;
+
+        remainingFineableDays -= daysInThisWeek;
+        currentWeek++;
+      }
     }
 
-    double totalFine = 0.0;
-    int remainingFineableDays = overdueDays - 6;
-    int currentWeek = 1;
-
-    while (remainingFineableDays > 0) {
-      final int daysInThisWeek = remainingFineableDays > 7
-          ? 7
-          : remainingFineableDays;
-      final double weekDailyRate = currentWeek * 5000.0;
-
-      totalFine += daysInThisWeek * weekDailyRate;
-
-      remainingFineableDays -= daysInThisWeek;
-      currentWeek++;
+    if (status == LoanStatus.missing) {
+      final Book? book = _findBookById(loan.bookId);
+      final double replacementPrice = book?.replacementPrice ?? 0.0;
+      return accumulatedFine + replacementPrice;
     }
 
-    return totalFine;
+    return accumulatedFine;
   }
 
-  bool borrowBook(String bookId, String studentId, {int quantity = 1}) {
-    final Book? book = _findBookById(bookId);
-
-    if (book == null || quantity <= 0 || book.stock < quantity) {
+  bool borrowBook(
+    String bookId,
+    String studentId, {
+    int quantity = 1,
+    DateTime? customDueDate,
+  }) {
+    final bookIndex = _books.indexWhere((b) => b.id == bookId);
+    if (bookIndex == -1 || _books[bookIndex].stock < quantity) {
       return false;
     }
 
-    final DateTime now = DateTime.now();
-    final DateTime dueDate = now.add(const Duration(days: 7));
+    final String newLoanId = 'L${DateTime.now().millisecondsSinceEpoch}';
 
-    for (int i = 0; i < quantity; i++) {
-      _loans.add(
-        Loan(
-          id: 'L${DateTime.now().millisecondsSinceEpoch}_$i',
-          bookId: bookId,
-          studentId: studentId,
-          borrowingDate: now,
-          dueDate: dueDate,
-          returnDate: null,
-          fineAmount: 0.0,
-        ),
-      );
-    }
+    final newLoan = Loan(
+      id: newLoanId,
+      bookId: bookId,
+      studentId: studentId,
+      borrowingDate: DateTime.now(),
+      dueDate: customDueDate ?? DateTime.now().add(const Duration(days: 7)),
+      fineAmount: 0.0,
+    );
 
-    _updateBookStock(bookId, book.stock - quantity);
+    _books[bookIndex] = _books[bookIndex].copyWith(
+      stock: _books[bookIndex].stock - quantity,
+    );
+
+    _loans.add(newLoan);
+
     notifyListeners();
     return true;
   }
 
   bool returnBook(String loanId) {
-    final int loanIndex = _loans.indexWhere((l) => l.id == loanId);
+    final loanIndex = _loans.indexWhere((l) => l.id == loanId);
     if (loanIndex == -1) return false;
 
-    final Loan loan = _loans[loanIndex];
-    if (loan.returnDate != null) return false;
+    final loan = _loans[loanIndex];
+    final double finalFine = calculateFine(loan);
 
-    final DateTime now = DateTime.now();
-    final double finalFine = calculateFine(loan, customCurrentDate: now);
+    final bookIndex = _books.indexWhere((b) => b.id == loan.bookId);
+    if (bookIndex != -1) {
+      _books[bookIndex] = _books[bookIndex].copyWith(
+        stock: _books[bookIndex].stock + 1,
+      );
+    }
 
-    _loans[loanIndex] = Loan(
-      id: loan.id,
-      bookId: loan.bookId,
-      studentId: loan.studentId,
-      borrowingDate: loan.borrowingDate,
-      dueDate: loan.dueDate,
-      returnDate: now,
+    _loans[loanIndex] = loan.copyWith(
+      returnDate: DateTime.now(),
       fineAmount: finalFine,
     );
-
-    final Book? book = _findBookById(loan.bookId);
-    if (book != null) {
-      _updateBookStock(loan.bookId, book.stock + 1);
-    }
 
     notifyListeners();
     return true;
@@ -182,10 +179,8 @@ class LibraryViewModel extends ChangeNotifier {
     }
   }
 
-  void _updateBookStock(String bookId, int newStock) {
-    final int bookIndex = _books.indexWhere((b) => b.id == bookId);
-    if (bookIndex != -1) {
-      _books[bookIndex] = _books[bookIndex].copyWith(stock: newStock);
-    }
+  void addBook(Book newBook) {
+    _books.add(newBook);
+    notifyListeners();
   }
 }
